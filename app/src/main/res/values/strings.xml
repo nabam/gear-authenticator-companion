@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Gear Authenticator</string>
+    <string name="qr_instructions">Please scan a QR code</string>
+    <string name="connect_button">Retry</string>
+
+    <string name="connection_failure">connection failure</string>
+    <string name="no_peers_found">accessory is not found</string>
+    <string name="peer_service_not_found">accessory app is not installed</string>
+    <string name="peer_device_not_connected">accessory is not connected</string>
+    <string name="disconnected">disconnected</string>
+    <string name="connection_already_exists">CONNECTION_ALREADY_EXIST</string>
+    <string name="connection_duplicate_request">CONNECTION_DUPLICATE_REQUEST</string>
+    <string name="peer_agent_available">PEER_AGENT_AVAILABLE</string>
+    <string name="peer_agent_unavailable">PEER_AGENT_UNAVAILABLE</string>
+</resources>

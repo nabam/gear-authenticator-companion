@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_centerHorizontal="false"
+    android:layout_centerVertical="false"
+    android:fitsSystemWindows="false"
+    tools:context="net.nabam.otp.ConnectActivity">
+
+    <Button
+        android:id="@+id/connect_button"
+        android:layout_width="200dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:text="@string/connect_button" />
+
+</android.support.design.widget.CoordinatorLayout>
