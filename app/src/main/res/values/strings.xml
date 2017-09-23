@@ -15,4 +15,5 @@
     <string name="enter_manually">Enter Manually</string>
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="submitted">submitted</string>
+    <string name="cant_connect">Can\'t connect to accessory</string>
 </resources>

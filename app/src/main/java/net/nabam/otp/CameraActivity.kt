@@ -9,7 +9,6 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.SurfaceHolder
-import android.view.View
 import android.widget.Toast
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.android.gms.vision.CameraSource
@@ -17,7 +16,8 @@ import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import kotlinx.android.synthetic.main.activity_camera.*
-import net.nabam.otp.util.parseUri
+import net.nabam.otp.util.OtpUriParseException
+import net.nabam.otp.util.parseOtpUri
 import java.io.IOException
 
 const val PERMISSIONS_REQUEST_CAMERA = 0;
@@ -87,9 +87,9 @@ class CameraActivity : CompanionActivity() {
                     if (barcodes.size() != 0) {
                         try {
                             val json = mObjectMapper.writeValueAsString(
-                                    parseUri(Uri.parse(barcodes.valueAt(0).displayValue)))
+                                    parseOtpUri(Uri.parse(barcodes.valueAt(0).displayValue)))
                             mConsumerService?.sendData(json)
-                        } catch (e: RuntimeException) {
+                        } catch (e: OtpUriParseException) {
                             return
                         }
 

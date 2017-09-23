@@ -1,6 +1,7 @@
 package net.nabam.otp.util
 
 import android.net.Uri
+import java.lang.RuntimeException
 
 const val OTP_SCHEME = "otpauth"
 const val SECRET_PARAM = "secret"
@@ -9,6 +10,8 @@ const val TOTP = "totp"
 const val HOTP = "hotp"
 
 const val DEFAULT_HOTP_COUNTER = 0
+
+class OtpUriParseException(message: String) : RuntimeException(message)
 
 enum class OtpType constructor(val value: Int) {
     TOTP(0),
@@ -34,8 +37,8 @@ private fun validateAndGetUserInPath(path: String?): String? {
     return if (user.length == 0) null else user
 }
 
-@Throws(RuntimeException::class)
-fun parseUri(uri: Uri): OtpInfo {
+@Throws(OtpUriParseException::class)
+fun parseOtpUri(uri: Uri): OtpInfo {
     val scheme = uri.getScheme().toLowerCase()
     val path = uri.getPath()
     val authority = uri.getAuthority()
@@ -45,7 +48,7 @@ fun parseUri(uri: Uri): OtpInfo {
     val counter: Int?
 
     if (!OTP_SCHEME.equals(scheme)) {
-        throw RuntimeException(INVALID_URI)
+        throw OtpUriParseException(INVALID_URI)
     }
 
     if (TOTP == authority) {
@@ -58,26 +61,27 @@ fun parseUri(uri: Uri): OtpInfo {
             try {
                 counter = Integer.parseInt(counterParameter)
             } catch (e: NumberFormatException) {
-                throw RuntimeException(INVALID_URI)
+                throw OtpUriParseException(INVALID_URI)
             }
 
         } else {
             counter = DEFAULT_HOTP_COUNTER
         }
     } else {
-        throw RuntimeException(INVALID_URI)
+        throw OtpUriParseException(INVALID_URI)
     }
 
     user = validateAndGetUserInPath(path)
     if (user == null) {
-        throw RuntimeException(INVALID_URI)
+        throw OtpUriParseException(INVALID_URI)
     }
 
     secret = uri.getQueryParameter(SECRET_PARAM)
 
     if (secret.isNullOrEmpty()) {
-        throw RuntimeException(INVALID_SECRET)
+        throw OtpUriParseException(INVALID_SECRET)
     }
 
     return OtpInfo(type, user, counter, secret)
 }
+
