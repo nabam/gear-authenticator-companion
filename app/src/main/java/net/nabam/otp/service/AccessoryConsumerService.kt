@@ -15,7 +15,7 @@ import net.nabam.otp.R
 
 import java.io.IOException
 
-const val TAG = "SAP Consumer"
+const val TAG = "SAP-Consumer"
 
 class AccessoryConsumerService : SAAgent {
     constructor() : super(TAG, ServiceConnection::class.java) {
