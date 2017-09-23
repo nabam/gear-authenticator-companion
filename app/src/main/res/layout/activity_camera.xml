@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="net.nabam.otp.MainActivity">
+    tools:context="net.nabam.otp.CameraActivity">
 
     <!-- Camera Preview -->
 
@@ -16,21 +16,6 @@
             android:id="@+id/camera_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
-        <RelativeLayout
-            android:id="@+id/overlay"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:background="#FFFFFF">
-
-            <!--- Put your Content Here -->
-
-            <TextView
-                android:id="@+id/code_info"
-                android:layout_width="wrap_content"
-                android:layout_height="100pt" />
-        </RelativeLayout>
 
     </RelativeLayout>
 

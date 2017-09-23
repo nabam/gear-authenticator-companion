@@ -28,7 +28,7 @@
             android:name="GearAppType"
             android:value="tpk" />
 
-        <service android:name="net.nabam.otp.service.AccessoryConsumerService" />
+        <service android:name=".service.AccessoryConsumerService" />
 
         <receiver android:name="com.samsung.android.sdk.accessory.RegisterUponInstallReceiver">
             <intent-filter>
@@ -41,17 +41,22 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+        <activity
+            android:name=".CameraActivity"
+            android:theme="@style/noAnimTheme"
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".ConnectActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-             <intent-filter>
+            android:theme="@style/noAnimTheme">
+        </activity>
+        <activity android:theme="@style/noAnimTheme" android:name=".ActionActivity">
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+
     </application>
 
 </manifest>

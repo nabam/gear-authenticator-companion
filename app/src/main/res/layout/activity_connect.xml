@@ -9,6 +9,16 @@
     android:fitsSystemWindows="false"
     tools:context="net.nabam.otp.ConnectActivity">
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="20dp"
+        android:text="Can't connect to accessory"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+        android:textSize="24sp" />
+
     <Button
         android:id="@+id/connect_button"
         android:layout_width="200dp"

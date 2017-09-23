@@ -1,13 +1,11 @@
 package net.nabam.otp
 
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
+import android.content.*
 import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import net.nabam.otp.service.AccessoryConsumerService
 
 /**
@@ -20,7 +18,9 @@ open class CompanionActivity : AppCompatActivity() {
     val mConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             mConsumerService = (service as AccessoryConsumerService.LocalBinder).service
-            onServiceUp()
+            runOnUiThread {
+                onServiceUp()
+            }
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
@@ -29,10 +29,37 @@ open class CompanionActivity : AppCompatActivity() {
         }
     }
 
-    open fun onServiceUp() {}
+    open val mConnectionFailedBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            runOnUiThread {
+                val intent = Intent(applicationContext, ConnectActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent)
+            }
+        }
+    }
+    val mConnectedBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            runOnUiThread {
+                onConnection()
+            }
+        }
+    }
+
+    open fun onConnection() {}
+    open fun onServiceUp() {
+        if (mConsumerService?.connection != null) {
+            onConnection()
+        }
+    }
+
+    lateinit var mBroadcastManager: LocalBroadcastManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        mBroadcastManager = LocalBroadcastManager.getInstance(this)
+        subscribe()
 
         mIsBound = bindService(
                 Intent(this, AccessoryConsumerService::class.java),
@@ -41,12 +68,33 @@ open class CompanionActivity : AppCompatActivity() {
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        subscribe()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        unsubscribe()
+    }
+
+    open fun subscribe() {
+        mBroadcastManager.registerReceiver(mConnectionFailedBroadcastReceiver, IntentFilter("connection-failed"))
+        mBroadcastManager.registerReceiver(mConnectedBroadcastReceiver, IntentFilter("connected"))
+    }
+
+    open fun unsubscribe() {
+        mBroadcastManager.unregisterReceiver(mConnectionFailedBroadcastReceiver)
+        mBroadcastManager.unregisterReceiver(mConnectedBroadcastReceiver)
+    }
+
     override fun onDestroy() {
-        // Un-bind service
         if (mIsBound) {
             unbindService(mConnection)
             mIsBound = false
         }
+
+        unsubscribe()
         super.onDestroy()
     }
 }

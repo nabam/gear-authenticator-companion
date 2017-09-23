@@ -12,4 +12,7 @@
     <string name="connection_duplicate_request">CONNECTION_DUPLICATE_REQUEST</string>
     <string name="peer_agent_available">PEER_AGENT_AVAILABLE</string>
     <string name="peer_agent_unavailable">PEER_AGENT_UNAVAILABLE</string>
+    <string name="enter_manually">Enter Manually</string>
+    <string name="scan_qr_code">Scan QR Code</string>
+    <string name="submitted">submitted</string>
 </resources>

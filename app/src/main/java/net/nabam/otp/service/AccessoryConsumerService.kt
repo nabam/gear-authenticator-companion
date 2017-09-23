@@ -1,5 +1,6 @@
 package net.nabam.otp.service
 
+import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.Handler
@@ -14,16 +15,24 @@ import net.nabam.otp.R
 
 import java.io.IOException
 
-const val TAG = "ConsumerService"
+const val TAG = "SAP Consumer"
 
-class AccessoryConsumerService : SAAgent(TAG, ServiceConnection::class.java) {
+class AccessoryConsumerService : SAAgent {
+    constructor() : super(TAG, ServiceConnection::class.java) {
+        this.mBinder = LocalBinder()
+        this.mHandler = Handler()
+    }
+
     inner class ServiceConnection : SASocket(ServiceConnection::class.java.name) {
 
         override fun onError(channelId: Int, errorMessage: String, errorCode: Int) {}
 
         override fun onReceive(channelId: Int, data: ByteArray) {}
 
-        override fun onServiceConnectionLost(reason: Int) { closeConnection() }
+        override fun onServiceConnectionLost(reason: Int) {
+            closeConnection()
+            findPeerAgents()
+        }
     }
 
     inner class LocalBinder : Binder() {
@@ -31,11 +40,15 @@ class AccessoryConsumerService : SAAgent(TAG, ServiceConnection::class.java) {
             get() = this@AccessoryConsumerService
     }
 
-    private val mBinder = LocalBinder()
-    private var mConnectionHandler: ServiceConnection? = null
-    private var mHandler = Handler()
+    private val mBinder: LocalBinder
+    private var mHandler: Handler
 
     lateinit var mBroadcastManager : LocalBroadcastManager
+
+    private var mConnectionHandler: ServiceConnection? = null
+
+    val connection: ServiceConnection?
+        get() = mConnectionHandler
 
     override fun onCreate() {
         super.onCreate()
@@ -59,6 +72,8 @@ class AccessoryConsumerService : SAAgent(TAG, ServiceConnection::class.java) {
             mBroadcastManager.sendBroadcast(intent)
             stopSelf()
         }
+
+        findPeerAgents()
     }
 
     override fun onBind(intent: Intent): IBinder? {

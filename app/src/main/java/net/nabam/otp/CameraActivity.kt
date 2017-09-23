@@ -1,42 +1,31 @@
 package net.nabam.otp
 
+import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.SurfaceHolder
-import android.widget.TextView
+import android.view.View
+import android.widget.Toast
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.android.gms.vision.CameraSource
+import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
-import android.Manifest
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
-import android.support.v4.content.LocalBroadcastManager
-import android.widget.Toast
-
-import com.google.android.gms.vision.Detector
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_camera.*
+import net.nabam.otp.util.parseUri
 import java.io.IOException
 
 const val PERMISSIONS_REQUEST_CAMERA = 0;
 
-class MainActivity : CompanionActivity() {
+class CameraActivity : CompanionActivity() {
     lateinit var cameraSource : CameraSource
-    lateinit var mBroadcastManager : LocalBroadcastManager
 
-    val mDisconnectedBroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            Toast.makeText(applicationContext, R.string.disconnected, Toast.LENGTH_LONG).show()
-
-            val intent = Intent(this@MainActivity, ConnectActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent)
-        }
-    }
+    val mObjectMapper = jacksonObjectMapper()
 
     fun startCamera(cameraSource: CameraSource, holder: SurfaceHolder) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
@@ -68,14 +57,9 @@ class MainActivity : CompanionActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        mBroadcastManager = LocalBroadcastManager.getInstance(this)
-        subscribe()
+        setContentView(R.layout.activity_camera)
 
         val barcodeDetector = BarcodeDetector.Builder(this)
                 .setBarcodeFormats(Barcode.QR_CODE)
@@ -95,42 +79,29 @@ class MainActivity : CompanionActivity() {
         })
 
         barcodeDetector.setProcessor(object: Detector.Processor<Barcode> {
-            override fun release() {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
+            override fun release() { }
             override fun receiveDetections(detections: Detector.Detections<Barcode>) {
-                val barcodes = detections.detectedItems
-                val codeInfo = findViewById(R.id.code_info) as TextView
+                if (mConsumerService?.connection != null) {
+                    val barcodes = detections.detectedItems
 
-                if (barcodes.size() != 0) {
-                    codeInfo.post(object: Runnable {
-                        override fun run() = codeInfo.setText(barcodes.valueAt(0).displayValue)
-                    })
+                    if (barcodes.size() != 0) {
+                        try {
+                            val json = mObjectMapper.writeValueAsString(
+                                    parseUri(Uri.parse(barcodes.valueAt(0).displayValue)))
+                            mConsumerService?.sendData(json)
+                        } catch (e: RuntimeException) {
+                            return
+                        }
+
+                        runOnUiThread {
+                            Toast.makeText(this@CameraActivity, R.string.submitted, Toast.LENGTH_LONG).show()
+                            val intent = Intent(this@CameraActivity, ActionActivity::class.java)
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent)
+                        }
+                    }
                 }
             }
         })
-    }
-
-    override fun onResume() {
-        super.onResume()
-        subscribe()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        unsubscribe()
-    }
-
-    override fun onDestroy() {
-        unsubscribe()
-        super.onDestroy()
-    }
-
-    fun subscribe() {
-        mBroadcastManager.registerReceiver(mDisconnectedBroadcastReceiver, IntentFilter("disconnected"))
-    }
-
-    fun unsubscribe() {
-        mBroadcastManager.unregisterReceiver(mDisconnectedBroadcastReceiver)
     }
 }
