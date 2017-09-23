@@ -18,10 +18,16 @@ import java.io.IOException
 const val TAG = "SAP-Consumer"
 
 class AccessoryConsumerService : SAAgent {
-    constructor() : super(TAG, ServiceConnection::class.java) {
-        this.mBinder = LocalBinder()
-        this.mHandler = Handler()
-    }
+    private val mBinder: LocalBinder = LocalBinder()
+    private val mHandler: Handler = Handler()
+
+    lateinit var mBroadcastManager : LocalBroadcastManager
+    private var mConnectionHandler: ServiceConnection? = null
+
+    val connection: ServiceConnection?
+        get() = mConnectionHandler
+
+    constructor() : super(TAG, ServiceConnection::class.java)
 
     inner class ServiceConnection : SASocket(ServiceConnection::class.java.name) {
 
@@ -39,16 +45,6 @@ class AccessoryConsumerService : SAAgent {
         val service: AccessoryConsumerService
             get() = this@AccessoryConsumerService
     }
-
-    private val mBinder: LocalBinder
-    private var mHandler: Handler
-
-    lateinit var mBroadcastManager : LocalBroadcastManager
-
-    private var mConnectionHandler: ServiceConnection? = null
-
-    val connection: ServiceConnection?
-        get() = mConnectionHandler
 
     override fun onCreate() {
         super.onCreate()

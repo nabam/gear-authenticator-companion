@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.os.IBinder
 import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import net.nabam.otp.service.AccessoryConsumerService
 
 /**

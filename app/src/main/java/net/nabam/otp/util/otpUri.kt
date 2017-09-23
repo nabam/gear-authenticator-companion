@@ -35,7 +35,7 @@ private fun validateAndGetUserInPath(path: String?): String? {
 }
 
 @Throws(RuntimeException::class)
-fun parseUri(uri: Uri): OtpInfo {
+fun parseOtpUri(uri: Uri): OtpInfo {
     val scheme = uri.getScheme().toLowerCase()
     val path = uri.getPath()
     val authority = uri.getAuthority()
