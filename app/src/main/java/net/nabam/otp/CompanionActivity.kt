@@ -7,9 +7,6 @@ import android.support.v4.content.LocalBroadcastManager
 import android.support.v7.app.AppCompatActivity
 import net.nabam.otp.service.AccessoryConsumerService
 
-/**
- * Created by lev on 22/09/17.
- */
 open class CompanionActivity : AppCompatActivity() {
     var mConsumerService: AccessoryConsumerService? = null
     var mIsBound = false
@@ -64,12 +61,18 @@ open class CompanionActivity : AppCompatActivity() {
                 Intent(this, AccessoryConsumerService::class.java),
                 mConnection,
                 Context.BIND_AUTO_CREATE)
-
     }
 
     override fun onResume() {
         super.onResume()
         subscribe()
+
+        if (mIsBound == false) {
+            mIsBound = bindService(
+                Intent(this, AccessoryConsumerService::class.java),
+                mConnection,
+                Context.BIND_AUTO_CREATE)
+        }
     }
 
     override fun onPause() {

@@ -43,20 +43,21 @@
 
         <activity
             android:name=".CameraActivity"
-            android:theme="@style/noAnimTheme"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"
+            android:theme="@style/noAnimTheme" />
         <activity
             android:name=".ConnectActivity"
+            android:theme="@style/noAnimTheme"></activity>
+        <activity
+            android:name=".ActionActivity"
             android:theme="@style/noAnimTheme">
-        </activity>
-        <activity android:theme="@style/noAnimTheme" android:name=".ActionActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
+        <activity android:name=".SubmitActivity"></activity>
     </application>
 
 </manifest>

@@ -1,6 +1,5 @@
 package net.nabam.otp.service
 
-import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.Handler
@@ -8,11 +7,12 @@ import android.os.IBinder
 import android.support.v4.content.LocalBroadcastManager
 import android.util.Log
 import android.widget.Toast
-
 import com.samsung.android.sdk.SsdkUnsupportedException
-import com.samsung.android.sdk.accessory.*
+import com.samsung.android.sdk.accessory.SA
+import com.samsung.android.sdk.accessory.SAAgent
+import com.samsung.android.sdk.accessory.SAPeerAgent
+import com.samsung.android.sdk.accessory.SASocket
 import net.nabam.otp.R
-
 import java.io.IOException
 
 const val TAG = "SAP-Consumer"

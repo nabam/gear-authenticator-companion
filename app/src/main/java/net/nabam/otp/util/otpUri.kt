@@ -1,6 +1,8 @@
 package net.nabam.otp.util
 
 import android.net.Uri
+import android.os.Parcel
+import android.os.Parcelable
 import java.lang.RuntimeException
 
 const val OTP_SCHEME = "otpauth"
@@ -23,10 +25,40 @@ const val INVALID_SECRET = "Invalid secret key"
 
 data class OtpInfo (
         val type: OtpType,
-        val user: String,
+        val label: String,
         val counter: Int,
-        val secret: String
-)
+        val secret: String,
+        var alias: String
+) : Parcelable {
+    constructor(parcel: Parcel) : this(
+            OtpType.valueOf(parcel.readString()),
+            parcel.readString(),
+            parcel.readInt(),
+            parcel.readString(),
+            parcel.readString())
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(type.name)
+        parcel.writeString(label)
+        parcel.writeInt(counter)
+        parcel.writeString(secret)
+        parcel.writeString(alias)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<OtpInfo> {
+        override fun createFromParcel(parcel: Parcel): OtpInfo {
+            return OtpInfo(parcel)
+        }
+
+        override fun newArray(size: Int): Array<OtpInfo?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
 
 private fun validateAndGetUserInPath(path: String?): String? {
     if (path == null || !path.startsWith("/")) {
@@ -82,6 +114,6 @@ fun parseOtpUri(uri: Uri): OtpInfo {
         throw OtpUriParseException(INVALID_SECRET)
     }
 
-    return OtpInfo(type, user, counter, secret)
+    return OtpInfo(type, user, counter, secret, "")
 }
 

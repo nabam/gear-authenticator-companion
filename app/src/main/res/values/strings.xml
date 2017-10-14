@@ -16,4 +16,9 @@
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="submitted">submitted</string>
     <string name="cant_connect">Can\'t connect to accessory</string>
+    <string name="label">Label</string>
+    <string name="type">Type</string>
+    <string name="submit">Submit</string>
+    <string name="alias_optional">Alias (Optional)</string>
+    <string name="no_data">No data</string>
 </resources>

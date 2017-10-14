@@ -9,13 +9,12 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.SurfaceHolder
-import android.widget.Toast
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.android.gms.vision.CameraSource
 import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import kotlinx.android.synthetic.main.activity_camera.*
+import net.nabam.otp.util.OtpInfo
 import net.nabam.otp.util.OtpUriParseException
 import net.nabam.otp.util.parseOtpUri
 import java.io.IOException
@@ -23,9 +22,8 @@ import java.io.IOException
 const val PERMISSIONS_REQUEST_CAMERA = 0;
 
 class CameraActivity : CompanionActivity() {
-    lateinit var cameraSource : CameraSource
-
-    val mObjectMapper = jacksonObjectMapper()
+    lateinit var mCameraSource: CameraSource
+    lateinit var mBarcodeDetector: BarcodeDetector
 
     fun startCamera(cameraSource: CameraSource, holder: SurfaceHolder) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
@@ -50,7 +48,7 @@ class CameraActivity : CompanionActivity() {
             if (grantResults.size != 1 || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 finish()
             } else {
-               startCamera(cameraSource, camera_view.holder)
+               startCamera(mCameraSource, camera_view.holder)
             }
         }
 
@@ -61,44 +59,47 @@ class CameraActivity : CompanionActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
 
-        val barcodeDetector = BarcodeDetector.Builder(this)
+        mBarcodeDetector = BarcodeDetector.Builder(this)
                 .setBarcodeFormats(Barcode.QR_CODE)
                 .build()
 
-        cameraSource = CameraSource.Builder(this, barcodeDetector).build()
+        mCameraSource = CameraSource.Builder(this, mBarcodeDetector)
+                .setAutoFocusEnabled(true)
+                .build()
 
         camera_view.getHolder().addCallback(object: SurfaceHolder.Callback {
             override fun surfaceCreated(holder:SurfaceHolder) {
-                startCamera(cameraSource, holder)
+                startCamera(mCameraSource, holder)
             }
             override fun surfaceChanged(holder:SurfaceHolder, format:Int, width:Int, height:Int) {
             }
             override fun surfaceDestroyed(holder:SurfaceHolder) {
-                cameraSource.stop()
+                mCameraSource.stop()
             }
         })
 
-        barcodeDetector.setProcessor(object: Detector.Processor<Barcode> {
+        mBarcodeDetector.setProcessor(object: Detector.Processor<Barcode> {
             override fun release() { }
             override fun receiveDetections(detections: Detector.Detections<Barcode>) {
                 if (mConsumerService?.connection != null) {
                     val barcodes = detections.detectedItems
 
                     if (barcodes.size() != 0) {
+                        val intent = Intent(this@CameraActivity, SubmitActivity::class.java)
+
+                        val otpInfo:OtpInfo
                         try {
-                            val json = mObjectMapper.writeValueAsString(
-                                    parseOtpUri(Uri.parse(barcodes.valueAt(0).displayValue)))
-                            mConsumerService?.sendData(json)
-                        } catch (e: OtpUriParseException) {
+                            otpInfo = parseOtpUri(Uri.parse(barcodes.valueAt(0).displayValue))
+                        } catch (_:OtpUriParseException) {
                             return
                         }
 
+                        intent.putExtra("otp_info", otpInfo)
                         runOnUiThread {
-                            Toast.makeText(this@CameraActivity, R.string.submitted, Toast.LENGTH_LONG).show()
-                            val intent = Intent(this@CameraActivity, ActionActivity::class.java)
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity(intent)
                         }
+                        mBarcodeDetector.release()
+                        finish()
                     }
                 }
             }

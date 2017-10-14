@@ -33,7 +33,9 @@ class ActionActivity : CompanionActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_action)
 
-        scan_button.isEnabled = false
+        if (mConsumerService == null) {
+            scan_button.isEnabled = false
+        }
         scan_button.setOnClickListener { _ ->
             val intent = Intent(this@ActionActivity, CameraActivity::class.java)
             startActivity(intent)
